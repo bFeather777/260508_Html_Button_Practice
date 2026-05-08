@@ -1,7 +1,8 @@
-window.onload = function() {
+window.onload = function() {  //這個函數會在視窗完全畫完之後才會使用
     const timeButton = document.getElementById('timeBtn');
     const timeDisplay = document.getElementById('displayTime');
     const connectBtn = document.getElementById('connectBtn');
+    const unconnectBtn = document.getElementById('unconnectBtn');
 
     // 1. 時間顯示邏輯，點下timeButton後，會執行引號中的這一串東西
     timeButton.addEventListener('click', function() {
@@ -16,7 +17,7 @@ window.onload = function() {
         try {
             const device = await navigator.bluetooth.requestDevice({
                 filters: [{ namePrefix: 'Pico' }],
-                optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']
+                optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e']  //UUID
             });
 
             console.log("2. 裝置已選取，正在連線 GATT...");
@@ -37,7 +38,7 @@ window.onload = function() {
                 // 尋找包含 0002 的特徵值，找不到就拿第一個
                 const targetChar = characteristics.find(c => c.uuid.includes('0002')) || characteristics[0];
                 console.log(`6. 準備對 ${targetChar.uuid} 寫入指令...`);
-                await targetChar.writeValue(new TextEncoder().encode("on\n"));
+                await targetChar.writeValue(new TextEncoder().encode("off\n"));
                 alert("成功！已對 " + targetChar.uuid + " 發送指令。");
             } else {
                 throw new Error("找不到任何特徵值");
