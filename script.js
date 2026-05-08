@@ -6,6 +6,7 @@ window.onload = function() {
     // 1. 時間顯示邏輯，點下timeButton後，會執行引號中的這一串東西
     timeButton.addEventListener('click', function() {
         const now = new Date();
+        console.log("顯示目前時間...");
         timeDisplay.textContent = `現在時間是：${now.toLocaleTimeString()}`;
     });
 
