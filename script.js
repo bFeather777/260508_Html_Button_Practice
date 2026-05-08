@@ -3,7 +3,7 @@ window.onload = function() {
     const timeDisplay = document.getElementById('displayTime');
     const connectBtn = document.getElementById('connectBtn');
 
-    // 1. 時間顯示邏輯
+    // 1. 時間顯示
     timeButton.addEventListener('click', function() {
         const now = new Date();
         timeDisplay.textContent = `現在時間是：${now.toLocaleTimeString()}`;
@@ -14,9 +14,9 @@ window.onload = function() {
         console.log("嘗試發起藍牙連線...");
         
         try {
-            // 請求裝置 (這會彈出視窗)
+            // 彈出請求裝置視窗
             const device = await navigator.bluetooth.requestDevice({
-                filters: [{ name: 'Pico-D' }], // 這裡的名字要跟 Pico 廣播名稱完全一致
+                filters: [{ name: 'Pico-D' }], // Pico裡面設計的名字
                 optionalServices: ['6e400001-b5a3-f393-e0a9-e50e24dcca9e'] // Service UUID
             });
 
@@ -29,9 +29,16 @@ window.onload = function() {
             // 取得負責「接收指令」的特徵值 (RX)
             const characteristic = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
 
-            // 傳送 "on\n" 指令
-            const encoder = new TextEncoder();
-            await characteristic.writeValue(encoder.encode("on\n"));
+            console.log("正在掃描該服務下的所有特徵值...");
+            const characteristics = await service.getCharacteristics();
+            characteristics.forEach(c => {
+                console.log("找到特徵值 UUID:", c.uuid);
+            });
+
+            // 嘗試抓取 0002
+            const char = await service.getCharacteristic('6e400002-b5a3-f393-e0a9-e50e24dcca9e');
+            await char.writeValue(new TextEncoder().encode("on\n"));
+            alert("發送成功！");
 
             console.log("發送成功：on");
             alert("已成功對 Pico 發送 ON 指令！");
