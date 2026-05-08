@@ -1,0 +1,17 @@
+#timeBtn {
+    background-color: #4CAF50; /* 背景顏色：綠色 */
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+
+}
+
+#timeBtn:hover {
+    background-color: #45a049; /* 顏色變深*/
+
+
+}
