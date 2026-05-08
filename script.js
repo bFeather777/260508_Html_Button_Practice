@@ -51,4 +51,6 @@ window.onload = function() {
         console.error("詳細錯誤訊息：", error);
         alert("連線失敗，請看 Console 裡的清單");
     }
-}}
+
+    }
+}
