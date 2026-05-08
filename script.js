@@ -38,7 +38,7 @@ window.onload = function() {  //這個函數會在視窗完全畫完之後才會
                 // 尋找包含 0002 的特徵值，找不到就拿第一個
                 const targetChar = characteristics.find(c => c.uuid.includes('0002')) || characteristics[0];
                 console.log(`6. 準備對 ${targetChar.uuid} 寫入指令...`);
-                await targetChar.writeValue(new TextEncoder().encode("off\n"));
+                await targetChar.writeValue(new TextEncoder().encode("play\n"));
                 alert("成功！已對 " + targetChar.uuid + " 發送指令。");
             } else {
                 throw new Error("找不到任何特徵值");
