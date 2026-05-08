@@ -11,54 +11,37 @@ window.onload = function() {
 
     //非同步的事件
     async function connectToPico() {
-    try {
-        const noble = require('@abandonware/noble');
-
-        // 1. 啟動藍牙掃描 
-        noble.on('stateChange', (state) => {
-            if (state === 'poweredOn') {
-                noble.startScanning(); 
-                console.log("藍牙已開啟，開始掃描...");
-            }
-        });
-
-        // 2. 發現裝置 
-        noble.on('discover', (peripheral) => {
-            if (peripheral.advertisement.localName === "Pico-D") {
-                noble.stopScanning(); // 找到就停止掃描，省電
+        try {
+                console.log("正在請求藍牙裝置...");
                 
-                // 3. 連線並尋找服務與特徵
-                peripheral.connect((err) => {
-                    console.log("連上 Pico-D 了！");
-                    
-                    // 尋找可以寫入指令的「特徵值」
-                    peripheral.discoverAllServicesAndCharacteristics((err, services, chars) => {
-                        const writeChar = chars[0]; // 假設第一個就是控制燈的
-
-                        // 4. 真正的傳送 
-                        writeChar.write(Buffer.from("on\n"), true, (err) => {
-                            if (err) return console.log('傳送失敗');
-                            console.log('on數據已成功發送！');
-                        });
-
-
-                        
-                        console.log('因為是非同步，所以會先執行這一行：）');
-                    });
+                // 1. 請求裝置（這會彈出瀏覽器配對視窗）
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [{ namePrefix: 'Pico-D' }], // 這裡對應你原本的 "Pico-D"
+                    optionalServices: ['6E400001-B5A3-F393-E0A9-E50E24DCCA9E'] // 舉例：這是常見的 Nordic UART UUID
                 });
-            }
-        });
 
-        const device = await navigator.bluetooth.requestDevice({
-            filters: [{ namePrefix: 'Pico' }], // 根據Pico 廣播名稱設定
-            optionalServices: ['nus_service_uuid'] // UUID
-        });
-        
-        console.log("成功連線到：" + device.name);
-        alert("Pico 已連線！");
-    } catch (error) {
-        console.error("連線失敗：", error);
-    }
+                // 2. 連線到 GATT 伺服器
+                const server = await device.gatt.connect();
+                console.log("已連線到 GATT Server");
+
+                // 3. 取得服務 (Service)
+                const service = await server.getPrimaryService('6E400001-B5A3-F393-E0A9-E50E24DCCA9E');
+
+                // 4. 取得寫入特徵值 (Characteristic)
+                // 這裡要根據你 Pico 程式定義的 UUID 來填寫
+                const characteristic = await service.getCharacteristic('6E400001-B5A3-F393-E0A9-E50E24DCCA9E');
+
+                // 5. 寫入數據 (對應你原本的 "on\n")
+                const encoder = new TextEncoder();
+                await characteristic.writeValue(encoder.encode("on\n"));
+
+                console.log("數據 'on\\n' 已成功發送到 Pico-D！");
+                alert("控制指令已送出！");
+
+            } catch (error) {
+                console.error("藍牙操作失敗：", error);
+                alert("錯誤: " + error.message);
+            }
     }
 
     connectBtn.addEventListener('click', connectToPico);
